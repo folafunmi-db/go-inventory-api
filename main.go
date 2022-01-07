@@ -22,6 +22,24 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Endpoint called: homepage()")
 }
 
+func updateItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var item Item
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	params := mux.Vars(r)
+
+	// delete the item
+	_deleteItemAtUID(params["uid"])
+
+	// create it with new data
+	inventory = append(inventory, item)
+
+	json.NewEncoder(w).Encode(item)
+
+}
+
 func deleteItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -67,6 +85,7 @@ func handleRequests() {
 	router.HandleFunc("/inventory", getInventory).Methods("GET")
 	router.HandleFunc("/inventory", createItem).Methods("POST")
 	router.HandleFunc("/inventory/{uid}", deleteItem).Methods("DELETE")
+	router.HandleFunc("/inventory/{uid}", updateItem).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

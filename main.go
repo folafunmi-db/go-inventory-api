@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 )
 
 type Item struct {
@@ -87,7 +88,11 @@ func handleRequests() {
 	router.HandleFunc("/inventory/{uid}", deleteItem).Methods("DELETE")
 	router.HandleFunc("/inventory/{uid}", updateItem).Methods("PUT")
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 func main() {

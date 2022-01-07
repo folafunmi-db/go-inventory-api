@@ -22,6 +22,24 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Endpoint called: homepage()")
 }
 
+func deleteItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	params := mux.Vars(r)
+
+	_deleteItemAtUID(params["uid"])
+
+	json.NewEncoder(w).Encode(inventory)
+}
+
+func _deleteItemAtUID(uid string) {
+	for index, item := range inventory {
+		if item.UID == uid {
+			inventory = append(inventory[:index], inventory[index+1:]...)
+		}
+	}
+}
+
 func getInventory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Println("Function called: inventory()")
@@ -48,6 +66,7 @@ func handleRequests() {
 	router.HandleFunc("/", homePage).Methods("GET")
 	router.HandleFunc("/inventory", getInventory).Methods("GET")
 	router.HandleFunc("/inventory", createItem).Methods("POST")
+	router.HandleFunc("/inventory/{uid}", deleteItem).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
@@ -60,7 +79,7 @@ func main() {
 		Price: 5,
 	})
 	inventory = append(inventory, Item{
-		UID:   "0",
+		UID:   "1",
 		Name:  "Milk",
 		Desc:  "A jug of milk",
 		Price: 15,

@@ -29,11 +29,25 @@ func getInventory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(inventory)
 }
 
+func createItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	// fmt.Println("Function called: createItem()")
+
+	var item Item
+
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	inventory = append(inventory, item)
+
+	json.NewEncoder(w).Encode(item)
+}
+
 func handleRequests() {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/", homePage).Methods("GET")
 	router.HandleFunc("/inventory", getInventory).Methods("GET")
+	router.HandleFunc("/inventory", createItem).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
